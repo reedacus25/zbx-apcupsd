@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2021-04-28T16:02:57Z</date>
+    <groups>
+        <group>
+            <name>Templates</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>APCUPSd</template>
+            <name>APCUPSd</name>
+            <description>Template for reading APC UPS over USB interface using apcupsd.</description>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>UPS</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>UPS Battery Voltage</name>
+                    <key>apcupsd.BATTV</key>
+                    <delay>10s</delay>
+                    <history>30d</history>
+                    <value_type>FLOAT</value_type>
+                    <applications>
+                        <application>
+                            <name>UPS</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>UPS Battery Charge</name>
+                    <key>apcupsd.BCHARGE</key>
+                    <delay>10s</delay>
+                    <history>30d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <applications>
+                        <application>
+                            <name>UPS</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>UPS High-Voltage Transfer</name>
+                    <key>apcupsd.HITRANS</key>
+                    <delay>24h</delay>
+                    <history>30d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>V</units>
+                    <applications>
+                        <application>
+                            <name>UPS</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>UPS Line Voltage</name>
+                    <key>apcupsd.LINEV</key>
+                    <delay>10s</delay>
+                    <history>30d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>V</units>
+                    <applications>
+                        <application>
+                            <name>UPS</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>UPS Load</name>
+                    <key>apcupsd.LOADPCT</key>
+                    <delay>10s</delay>
+                    <history>30d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <applications>
+                        <application>
+                            <name>UPS</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>UPS Low-Voltage Transfer</name>
+                    <key>apcupsd.LOTRANS</key>
+                    <delay>24h</delay>
+                    <history>30d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>V</units>
+                    <applications>
+                        <application>
+                            <name>UPS</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>UPS Minimum Battery Charge</name>
+                    <key>apcupsd.MBATTCHG</key>
+                    <delay>24h</delay>
+                    <history>30d</history>
+                    <units>%</units>
+                    <applications>
+                        <application>
+                            <name>UPS</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>UPS Minimum Time on Battery Remaining</name>
+                    <key>apcupsd.MINTIMEL</key>
+                    <delay>24h</delay>
+                    <history>30d</history>
+                    <units>m</units>
+                    <applications>
+                        <application>
+                            <name>UPS</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>UPS Watts Load</name>
+                    <type>CALCULATED</type>
+                    <key>apcupsd.nomwatts</key>
+                    <units>w</units>
+                    <params>last(apcupsd.LOADPCT) / 100 * {$APC_NOM_WATTS}</params>
+                    <applications>
+                        <application>
+                            <name>UPS</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>UPS Status</name>
+                    <key>apcupsd.Status</key>
+                    <delay>30s</delay>
+                    <history>30d</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>UPS</name>
+                        </application>
+                    </applications>
+                    <triggers>
+                        <trigger>
+                            <expression>{regexp(&quot;^(ONLINE)$&quot;,#1)}=0</expression>
+                            <name>UPS Power Interruption</name>
+                            <priority>AVERAGE</priority>
+                            <dependencies>
+                                <dependency>
+                                    <name>UPS Recharging</name>
+                                    <expression>{APCUPSd:apcupsd.Status.regexp(&quot;^(CHARGING)$&quot;,1)}=1</expression>
+                                </dependency>
+                                <dependency>
+                                    <name>UPS Time Remaining Very Low</name>
+                                    <expression>{APCUPSd:apcupsd.TIMELEFT.last()}&lt;{$APC_REM_CRIT}</expression>
+                                </dependency>
+                            </dependencies>
+                        </trigger>
+                        <trigger>
+                            <expression>{regexp(&quot;^(CHARGING)$&quot;,1)}=1</expression>
+                            <name>UPS Recharging</name>
+                            <priority>INFO</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>UPS Time Left on Battery</name>
+                    <key>apcupsd.TIMELEFT</key>
+                    <delay>10s</delay>
+                    <history>30d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>m</units>
+                    <applications>
+                        <application>
+                            <name>UPS</name>
+                        </application>
+                    </applications>
+                    <triggers>
+                        <trigger>
+                            <expression>{last()}&lt;{$APC_REM_WARN}</expression>
+                            <name>UPS Time Remaining Low</name>
+                            <priority>HIGH</priority>
+                            <dependencies>
+                                <dependency>
+                                    <name>UPS Recharging</name>
+                                    <expression>{APCUPSd:apcupsd.Status.regexp(&quot;^(CHARGING)$&quot;,1)}=1</expression>
+                                </dependency>
+                            </dependencies>
+                        </trigger>
+                        <trigger>
+                            <expression>{last()}&lt;{$APC_REM_CRIT}</expression>
+                            <name>UPS Time Remaining Very Low</name>
+                            <priority>DISASTER</priority>
+                            <dependencies>
+                                <dependency>
+                                    <name>UPS Recharging</name>
+                                    <expression>{APCUPSd:apcupsd.Status.regexp(&quot;^(CHARGING)$&quot;,1)}=1</expression>
+                                </dependency>
+                            </dependencies>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>UPS Time on Battery</name>
+                    <key>apcupsd.TONBATT</key>
+                    <delay>10s</delay>
+                    <history>30d</history>
+                    <units>s</units>
+                    <applications>
+                        <application>
+                            <name>UPS</name>
+                        </application>
+                    </applications>
+                </item>
+            </items>
+            <macros>
+                <macro>
+                    <macro>{$APC_NOM_WATTS}</macro>
+                    <value>650</value>
+                    <description>nominal wattage of UPS, pulled from running apcaccess and using value of watts for NOMPOWER</description>
+                </macro>
+                <macro>
+                    <macro>{$APC_REM_CRIT}</macro>
+                    <value>3</value>
+                    <description>Minutes remaining on UPS power - critical</description>
+                </macro>
+                <macro>
+                    <macro>{$APC_REM_WARN}</macro>
+                    <value>10</value>
+                    <description>Minutes remaining on UPS power - warning</description>
+                </macro>
+            </macros>
+        </template>
+    </templates>
+    <graphs>
+        <graph>
+            <name>Line Voltage</name>
+            <graph_items>
+                <graph_item>
+                    <drawtype>DASHED_LINE</drawtype>
+                    <color>FF0000</color>
+                    <item>
+                        <host>APCUPSd</host>
+                        <key>apcupsd.HITRANS</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <drawtype>BOLD_LINE</drawtype>
+                    <color>00FF00</color>
+                    <item>
+                        <host>APCUPSd</host>
+                        <key>apcupsd.LINEV</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>2</sortorder>
+                    <drawtype>DASHED_LINE</drawtype>
+                    <color>FF0000</color>
+                    <item>
+                        <host>APCUPSd</host>
+                        <key>apcupsd.LOTRANS</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+    </graphs>
+</zabbix_export>
